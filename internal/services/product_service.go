@@ -57,3 +57,28 @@ func (s *ProductService) GetProductByID(id int) (*models.Product, error) {
 
 	return product, nil
 }
+
+func (s *ProductService) UpdateProduct(id int, product models.Product) error {
+	if product.Price <= 0 {
+		return errors.New("Harga produk harus lebih dari 0")
+	}
+
+	if product.Stock < 0 {
+		return errors.New("Stok produk tidak boleh kurang dari 0")
+	}
+
+	err := s.repo.UpdateProduct(id, product)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *ProductService) DeleteProduct(id int) error {
+	err := s.repo.DeleteProduct(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

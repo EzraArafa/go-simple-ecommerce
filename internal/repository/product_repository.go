@@ -80,3 +80,45 @@ func (r *ProductRepository) GetProductByID(id int) (*models.Product, error) {
 	}
 	return &p, nil
 }
+
+func (r *ProductRepository) UpdateProduct(id int, product models.Product) error {
+	query := `UPDATE products
+			  SET name = ?, description = ?, price = ?, stock = ?, updated_at = CURRENT_TIMESTAMP
+			  WHERE id = ?`
+
+	result, err := r.db.Exec(query, product.Name, product.Description, product.Price, product.Stock, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("produk tidak ditemukan")
+	}
+
+	return nil
+}
+
+func (r *ProductRepository) DeleteProduct(id int) error {
+	query := `DELETE FROM products WHERE id = ?`
+
+	result, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowAffected == 0 {
+		return errors.New("produk tidak ditemukan")
+	}
+
+	return nil
+}

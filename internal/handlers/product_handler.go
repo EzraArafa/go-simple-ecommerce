@@ -72,3 +72,60 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(product)
 }
+
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Format ID tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	var product models.Product
+	err = json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		http.Error(w, "Format JSON tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.UpdateProduct(id, product)
+	if err != nil {
+		if err.Error() == "Produk tidak ditemukan" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]string{"messege": "Data produk berhasil diperbarui"}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Format ID tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.DeleteProduct(id)
+	if err != nil {
+		if err.Error() == "produk tidak ditemukan" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]string{"messege": "Data produk berhasil dihapus"}
+	json.NewEncoder(w).Encode(response)
+}
