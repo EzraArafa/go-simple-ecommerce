@@ -47,3 +47,13 @@ func (s *ProductService) GetAllProducts() ([]models.Product, error) {
 
 	return products, nil
 }
+
+func (s *ProductService) GetProductByID(id int) (*models.Product, error) {
+	product, err := s.repo.GetProductByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return product, nil
+}

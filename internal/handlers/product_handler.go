@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/EzraArafa/go-simple-ecommerce/internal/models"
 	"github.com/EzraArafa/go-simple-ecommerce/internal/services"
@@ -46,4 +47,28 @@ func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(products)
+}
+
+func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Format ID tidak valid, harus berupa angka", http.StatusBadRequest)
+		return
+	}
+
+	product, err := h.service.GetProductByID(id)
+	if err != nil {
+		if err.Error() == "Produk tidak ditemukan" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(product)
 }

@@ -31,6 +31,7 @@ func main() {
 
 	router.HandleFunc("POST /products", productHandler.CreateProduct)
 	router.HandleFunc("GET /products", productHandler.GetAllProducts)
+	router.HandleFunc("GET /products/{id}", productHandler.GetProductByID)
 
 	port := ":8080"
 	log.Printf("Server berhasil berjalan di port %s\n", port)

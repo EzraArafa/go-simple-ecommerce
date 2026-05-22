@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/EzraArafa/go-simple-ecommerce/internal/models"
 )
@@ -62,4 +63,20 @@ func (r *ProductRepository) GetAllProducts() ([]models.Product, error) {
 	}
 
 	return products, nil
+}
+
+func (r *ProductRepository) GetProductByID(id int) (*models.Product, error) {
+	query := `SELECT id, name, description, price, stock, created_at, updated_at FROM products WHERE id = ?`
+
+	var p models.Product
+
+	err := r.db.QueryRow(query, id).Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Stock, &p.CreatedAt, &p.UpdatedAt)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("Produk tidak ditemukan")
+		}
+		return nil, err
+	}
+	return &p, nil
 }
