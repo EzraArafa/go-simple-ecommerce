@@ -11,3 +11,9 @@ type Product struct {
 	CreatedAt   time.Time `json:"created_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }
+
+type CartItem struct {
+	ID        int `json:"id"`
+	ProductID int `json:"product_id"`
+	Quantity  int `json:"quantity"`
+}

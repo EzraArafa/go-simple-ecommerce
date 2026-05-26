@@ -19,6 +19,10 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
+	cartRepo := repository.NewCartRepository(db)
+	cartService := services.NewCartService(cartRepo)
+	cartHandler := handlers.NewCartHandler(cartService)
+
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +38,8 @@ func main() {
 	router.HandleFunc("GET /products/{id}", productHandler.GetProductByID)
 	router.HandleFunc("PUT /products/{id}", productHandler.UpdateProduct)
 	router.HandleFunc("DELETE /products/{id}", productHandler.DeleteProduct)
+
+	router.HandleFunc("POST /cart", cartHandler.AddToCart)
 
 	port := ":8080"
 	log.Printf("Server berhasil berjalan di port %s\n", port)
