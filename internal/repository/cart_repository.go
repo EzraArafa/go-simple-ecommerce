@@ -73,3 +73,55 @@ func (r *CartRepository) DeleteCartItem(id int) error {
 	}
 	return nil
 }
+
+func (r *CartRepository) Checkout() error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	rows, err := tx.Query(`SELECT product_id, quantity FROM cart_items`)
+	if err != nil {
+		return err
+	}
+
+	var items []models.CartItem
+	for rows.Next() {
+		var item models.CartItem
+		if err := rows.Scan(&item.ProductID, &item.Quantity); err != nil {
+			rows.Close()
+			return err
+		}
+		items = append(items, item)
+	}
+	rows.Close()
+
+	if len(items) == 0 {
+		return errors.New("keranjang kosong")
+	}
+
+	for _, item := range items {
+		queyUpdate := `UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?`
+		res, err := tx.Exec(queyUpdate, item.Quantity, item.ProductID, item.Quantity)
+		if err != nil {
+			return err
+		}
+
+		affected, err := res.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if affected == 0 {
+			return errors.New("stok produk tidak mencukupi untuk diproses")
+		}
+	}
+
+	_, err = tx.Exec(`DELETE FROM cart_items`)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}

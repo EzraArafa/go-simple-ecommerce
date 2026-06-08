@@ -84,3 +84,21 @@ func (h *CartHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 	response := map[string]string{"message": "Item berhasil dihapus dari keranjang"}
 	json.NewEncoder(w).Encode(response)
 }
+
+func (h *CartHandler) Checkout(w http.ResponseWriter, r *http.Request) {
+	err := h.service.Checkout()
+	if err != nil {
+		if err.Error() == "keranjang kosong" || err.Error() == "stok produk tidak mencukupi untuk diproses" {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content- Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]string{"message": "Checkout berhasil! Stok telah dikurangi dan keranjang dikosongkan."}
+	json.NewEncoder(w).Encode(response)
+}

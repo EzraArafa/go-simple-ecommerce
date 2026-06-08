@@ -35,3 +35,7 @@ func (s *CartService) DeleteCartItem(id int) error {
 	}
 	return s.repo.DeleteCartItem(id)
 }
+
+func (s *CartService) Checkout() error {
+	return s.repo.Checkout()
+}
