@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/EzraArafa/go-simple-ecommerce/internal/models"
 	"github.com/EzraArafa/go-simple-ecommerce/internal/services"
@@ -43,5 +44,43 @@ func (h *CartHandler) AddToCart(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	response := map[string]string{"messege": "Barang berhasil ditambahkan ke keranjang"}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *CartHandler) GetCartItems(w http.ResponseWriter, r *http.Request) {
+	items, err := h.service.GetCartItems()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(items)
+}
+
+func (h *CartHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.DeleteCartItem(id)
+	if err != nil {
+		if err.Error() == "item keranjang tidak ditemukan" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]string{"message": "Item berhasil dihapus dari keranjang"}
 	json.NewEncoder(w).Encode(response)
 }

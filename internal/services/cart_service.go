@@ -24,3 +24,14 @@ func (s *CartService) AddToCart(item models.CartItem) error {
 	}
 	return s.repo.AddToCart(item)
 }
+
+func (s *CartService) GetCartItems() ([]models.CartItemResponse, error) {
+	return s.repo.GetCartItems()
+}
+
+func (s *CartService) DeleteCartItem(id int) error {
+	if id <= 0 {
+		return errors.New("ID tidak valid")
+	}
+	return s.repo.DeleteCartItem(id)
+}

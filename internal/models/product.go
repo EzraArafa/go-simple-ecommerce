@@ -17,3 +17,11 @@ type CartItem struct {
 	ProductID int `json:"product_id"`
 	Quantity  int `json:"quantity"`
 }
+
+type CartItemResponse struct {
+	ID        int     `json:"id"`
+	ProductID int     `json:"product_id"`
+	Name      string  `json:"name"`
+	Price     float64 `json:"price"`
+	Quantity  int     `json:"quantity"`
+}
